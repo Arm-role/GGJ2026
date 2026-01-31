@@ -1,45 +1,45 @@
 ﻿using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class EmotionController : MonoBehaviour
 {
-  [Header("Setup")]
-  [SerializeField] private EmotionType emotionTypeMock;
-
-  [Header("Setup")]
-  [SerializeField] private GameSetting setting;
+  [Header("Setup")] [SerializeField] private GameSetting setting;
   [SerializeField] private EmotionTypeDifficulty[] emotionTypeDifficulty;
 
   [SerializeField] private IndicatorUI indicator;
   [SerializeField] private EmotionSpawnerUI spawner;
   [SerializeField] private EmotionScoreBar scoreBar;
 
-  [Header("Setup Param")]
-  [SerializeField] private string path;
+  [Header("Setup Param")] [SerializeField]
+  private string path;
 
-  [Header("Data")]
-  [SerializeField] private EmotionDifficulty easyDifficulty;
+  [Header("Data")] [SerializeField] private EmotionDifficulty easyDifficulty;
   [SerializeField] private EmotionDifficulty normalDifficulty;
   [SerializeField] private EmotionDifficulty hardDifficulty;
   [SerializeField] private EmotionDifficulty chaosDifficulty;
 
-  [Header("UI")]
-  [SerializeField] private Button button1;
+  [Header("UI")] [SerializeField] private Button button1;
   [SerializeField] private Button button2;
   [SerializeField] private Button button3;
   [SerializeField] private Button button4;
 
-  [SerializeField] private TextMeshProUGUI textMesh;
 
   [SerializeField] private Image Image1;
   [SerializeField] private Image Image2;
   [SerializeField] private Image Image3;
   [SerializeField] private Image Image4;
 
+  [SerializeField] private TextMeshProUGUI textMesh;
+  [SerializeField] private GameObject huggingObject;
+
   private readonly EmotionTurn turn = new();
   private IconProvider _iconProvider;
+
+  private EmotionGameSession session;
+  private EmotionGameState state = EmotionGameState.Idle;
 
   private EmotionTypeDifficulty _typeDifficulty;
   private EmotionDifficulty _difficulty;
@@ -48,7 +48,7 @@ public class EmotionController : MonoBehaviour
   private EmotionType _inputEmotion;
   private EmotionType _outputEmotion;
 
-  public Action<int, EmotionType> OnComplete;
+  public Action<int, EmotionType, EmotionType> OnComplete;
   public Action OnFail;
 
   void Start()
@@ -66,12 +66,13 @@ public class EmotionController : MonoBehaviour
 
     indicator.OnPress += OnIndicatorPress;
 
-
-    Setup(emotionTypeMock);
+    huggingObject.SetActive(false);
   }
 
   public void Setup(EmotionType emotionInput)
   {
+    GameStateManager.Set(GameState.HugglingUI);
+    
     _inputEmotion = emotionInput;
     _typeDifficulty = GettypeDifficulty(emotionInput);
 
@@ -81,89 +82,122 @@ public class EmotionController : MonoBehaviour
     Image4.sprite = _iconProvider.Get(_typeDifficulty.Chaos.EmotionType);
 
     ChoiseA();
+    
+    Debug.Log("Setup");
+    huggingObject.SetActive(true);
   }
 
   private void SelectDifficulty(EmotionDifficulty difficulty)
   {
-    turn.Clear();
-    spawner.ClearAll();
+    state = EmotionGameState.Playing;
 
     _difficulty = difficulty;
 
+    session = new EmotionGameSession(
+      difficulty,
+      _inputEmotion,
+      _outputEmotion
+    );
+
+    turn.Clear();
+    spawner.ClearAll();
+    indicator.ResetIndicator();
+
     var range = indicator.GetBarRange01();
     turn.SetBarRange(range.min, range.max);
-    turn.Setup(_difficulty.InitialItems);
+    turn.Setup(difficulty.InitialItems);
 
     spawner.SpawnAll(turn.EmotionItems);
 
-    score = 0;
-
-    scoreBar.Setup(_difficulty);
-    scoreBar.SetScore(score);
-
+    scoreBar.Setup(difficulty);
+    scoreBar.SetScore(session.Score);
   }
+
   private void ChoiseA()
   {
+    if(indicator.IsRunning) return;
+    
     _outputEmotion = _typeDifficulty.Easy.EmotionType;
     SelectDifficulty(_typeDifficulty.Easy.Difficulty);
+    EventSystem.current.SetSelectedGameObject(null);
+    Debug.Log(_outputEmotion);
   }
+
   private void ChoiseB()
   {
+    if(indicator.IsRunning) return;
+    
     _outputEmotion = _typeDifficulty.Normal.EmotionType;
     SelectDifficulty(_typeDifficulty.Normal.Difficulty);
+    EventSystem.current.SetSelectedGameObject(null);
+    Debug.Log(_outputEmotion);
   }
+
   private void ChoiseC()
   {
+    if(indicator.IsRunning) return;
+    
     _outputEmotion = _typeDifficulty.Hard.EmotionType;
     SelectDifficulty(_typeDifficulty.Hard.Difficulty);
+    EventSystem.current.SetSelectedGameObject(null);
+    Debug.Log(_outputEmotion);
   }
+
   private void ChoiseD()
   {
+    if(indicator.IsRunning) return;
+    
     _outputEmotion = _typeDifficulty.Chaos.EmotionType;
     SelectDifficulty(_typeDifficulty.Chaos.Difficulty);
+    EventSystem.current.SetSelectedGameObject(null);
+    Debug.Log(_outputEmotion);
   }
 
   private void OnIndicatorPress(float t)
   {
-    var respawn = _difficulty.GetRandomRespawn();
+    if (state != EmotionGameState.Playing)
+      return;
 
     bool hit = turn.Resolve(
       t,
-      respawn,
+      _difficulty.GetRandomRespawn(),
       out var hitItem,
-      out int gain,
-      out bool endTurn);
+      out int gain);
 
-    score += hit ? gain : _difficulty.MissPenalty;
+    session.ApplyResult(hit, gain, _difficulty.MissPenalty);
 
     if (hit)
       spawner.Remove(hitItem);
 
-    if (endTurn)
-    {
-      turn.Clear();
-      spawner.ClearAll();
-      indicator.ResetIndicator();
-
-      Debug.Log($"Deal Accepted! Final Score: {score}");
-      return;
-    }
-
+    scoreBar.SetScore(session.Score);
     spawner.SpawnAll(turn.EmotionItems);
-    textMesh.text = $"Score : {score}";
+    textMesh.text = $"Score : {session.Score}";
 
-    scoreBar.SetScore(score);
-
-    if (score >= _difficulty.RequestScore)
+    if (session.IsCompleted)
     {
-      OnComplete?.Invoke(score, _outputEmotion);
+      FinishSession(true);
     }
-    else if (score <= _difficulty.MissPenalty)
+    else if (session.IsFailed)
     {
-      OnFail?.Invoke();
-
+      FinishSession(false);
     }
   }
+
+  private void FinishSession(bool success)
+  {
+    state = EmotionGameState.Finished;
+
+    turn.Clear();
+    spawner.ClearAll();
+    indicator.ResetIndicator();
+    huggingObject.SetActive(false);
+
+    if (success)
+      OnComplete?.Invoke(session.Score, _inputEmotion, session.OutputEmotion);
+    else
+      OnFail?.Invoke();
+  }
+
 
   private EmotionTypeDifficulty GettypeDifficulty(EmotionType emotion)
   {

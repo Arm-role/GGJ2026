@@ -4,7 +4,6 @@ using UnityEngine;
 public class EmotionTurn
 {
   private readonly List<EmotionRuntimeItem> emotionItems = new();
-  private readonly List<EmotionRuntimeItem> decisionItems = new();
 
   private const int MAX_TRY = 30;
 
@@ -14,23 +13,13 @@ public class EmotionTurn
   private float barMax = 1f;
 
   public IReadOnlyList<EmotionRuntimeItem> EmotionItems => emotionItems;
-  public IReadOnlyList<EmotionRuntimeItem> DecisionItems => decisionItems;
-
-  public IEnumerable<EmotionRuntimeItem> AllItems
-  {
-    get
-    {
-      foreach (var d in decisionItems) yield return d;
-      foreach (var e in emotionItems) yield return e;
-    }
-  }
 
   /* ---------- SETUP ---------- */
 
   public void Setup(IEnumerable<EmotionItem> levelItems)
   {
     emotionItems.Clear();
-    
+
     var range = GetEmotionSpawnRange();
 
     //SetAceptDeal(acept);
@@ -38,7 +27,6 @@ public class EmotionTurn
     foreach (var item in levelItems)
       TrySpawn(item, range.min, range.max);
 
-    Debug.Log("decisionItems : " + decisionItems.Count);
   }
 
   public void SetEdgePadding(float value)
@@ -46,27 +34,9 @@ public class EmotionTurn
     edgePadding = Mathf.Clamp01(value);
   }
 
-  private void SetAceptDeal(EmotionItem acept)
-  {
-    decisionItems.Clear();
-
-    float half = acept.Width * 0.5f;
-
-    // ซ้าย
-    decisionItems.Add(new EmotionRuntimeItem(
-      acept,
-      half));
-
-    // ขวา
-    decisionItems.Add(new EmotionRuntimeItem(
-      acept,
-      1f - half));
-  }
-
   public void Clear()
   {
     emotionItems.Clear();
-    decisionItems.Clear();
   }
 
   public void SetBarRange(float min, float max)
@@ -78,27 +48,13 @@ public class EmotionTurn
   /* ---------- RESOLVE ---------- */
 
   public bool Resolve(
-  float pointer,
-  EmotionItem respawnItem,
-  out EmotionRuntimeItem hit,
-  out int score,
-  out bool endTurn)
+    float pointer,
+    EmotionItem respawnItem,
+    out EmotionRuntimeItem hit,
+    out int score)
   {
     hit = default;
     score = 0;
-    endTurn = false;
-
-    // 1️⃣ Decision ก่อน (AcceptDeal)
-    for (int i = 0; i < decisionItems.Count; i++)
-    {
-      if (!decisionItems[i].Contains(pointer))
-        continue;
-
-      hit = decisionItems[i];
-      endTurn = true;
-      score = hit.Data.Value;
-      return true;
-    }
 
     // 2️⃣ Emotion item ปกติ
     for (int i = 0; i < emotionItems.Count; i++)
@@ -119,13 +75,12 @@ public class EmotionTurn
   }
 
 
-
   /* ---------- SPAWN LOGIC ---------- */
 
   private bool TrySpawn(
-  EmotionItem item,
-  float min,
-  float max)
+    EmotionItem item,
+    float min,
+    float max)
   {
     float half = item.Width * 0.5f;
 
@@ -136,10 +91,7 @@ public class EmotionTurn
 
       if (IsOverlappingEmotion(candidate))
         continue;
-
-      if (IsOverlappingDecision(candidate))
-        continue;
-
+      
       emotionItems.Add(candidate);
       return true;
     }
@@ -172,7 +124,6 @@ public class EmotionTurn
 
     var blockers = new List<EmotionRuntimeItem>();
     blockers.AddRange(emotionItems);
-    blockers.AddRange(decisionItems);
 
     blockers.Sort((a, b) => a.Min.CompareTo(b.Min));
 
@@ -205,19 +156,8 @@ public class EmotionTurn
     return false;
   }
 
-  private bool IsOverlappingDecision(EmotionRuntimeItem candidate)
-  {
-    foreach (var d in decisionItems)
-      if (candidate.OverlapsWithPadding(d, edgePadding))
-        return true;
-
-    return false;
-  }
-
-
   public IEnumerable<(float min, float max)> Debug_GetEmptySpaces()
   {
     return GetEmptySpaces();
   }
-
 }

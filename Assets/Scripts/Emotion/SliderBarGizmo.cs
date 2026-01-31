@@ -3,9 +3,12 @@
 public class SliderBarGizmo : MonoBehaviour
 {
   [SerializeField] private SliderBar bar;
+  [SerializeField] private bool isDrawGizmo;
+
 
   private void OnDrawGizmos()
   {
+    if (!isDrawGizmo) return;
     if (!bar) return;
 
     var rt = bar.GetComponent<RectTransform>();

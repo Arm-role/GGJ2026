@@ -1,5 +1,4 @@
-﻿
-using UnityEngine;
+﻿using UnityEngine;
 
 [CreateAssetMenu(fileName = "GameSettiong", menuName = "Game/GameSettiong")]
 public class GameSetting : ScriptableObject

@@ -14,19 +14,23 @@ public class IndicatorUI : MonoBehaviour
   private float t;
   private float delay;
   private bool isRunning = false;
-
+  public bool IsRunning => isRunning;
+  
   [SerializeField] private Button pressButton;
 
   private void Start()
   {
     pressButton.onClick.AddListener(OnPressed);
   }
+
   void Update()
   {
+    if (GameStateManager.Current != GameState.HugglingUI)
+      return;
+    
     if (Input.GetKeyDown(KeyCode.Space))
       OnPressed();
 
-    // กดครั้งแรก → เริ่มวิ่ง
     if (!isRunning)
       return;
 
@@ -45,8 +49,6 @@ public class IndicatorUI : MonoBehaviour
 
     indicator.anchoredPosition =
       new Vector2(bar.ToAnchoredX(t), 0);
-
-
   }
 
   private void OnPressed()
@@ -55,7 +57,7 @@ public class IndicatorUI : MonoBehaviour
     {
       isRunning = true;
       delay = 0.2f;
-      return; 
+      return;
     }
 
     delay = 0.4f;
@@ -66,11 +68,11 @@ public class IndicatorUI : MonoBehaviour
   public void ResetIndicator()
   {
     isRunning = false;
-    t = 0.5f;
+    t = 0f;
     Direction = 1f;
     delay = 0f;
 
-    indicator.anchoredPosition = Vector2.zero;
+    indicator.anchoredPosition = new Vector2(-400f, 0);
   }
 
   public (float min, float max) GetBarRange01()

@@ -5,9 +5,13 @@ public class EmotionTurnGizmo : MonoBehaviour
 {
   [SerializeField] private SliderBar bar;
   [SerializeField] private EmotionController controller;
+  [SerializeField] private bool isDrawGizmo;
+
 
   private void OnDrawGizmos()
   {
+    if(!isDrawGizmo) return;
+
     if (controller == null || bar == null) return;
 
     var turnField = typeof(EmotionController)
@@ -30,7 +34,7 @@ public class EmotionTurnGizmo : MonoBehaviour
 #endif
 
     // ---------- DRAW ITEMS ----------
-    foreach (var item in turn.AllItems)
+    foreach (var item in turn.EmotionItems)
     {
       DrawItem(item);
     }

@@ -14,8 +14,6 @@ public class EmotionSpawnerUI : MonoBehaviour
   {
     Clear();
 
-    Debug.Log(items.Count());
-
     foreach (var item in items)
       Spawn(item);
   }
