@@ -13,12 +13,13 @@ MonoBehaviour:
   m_Name: Normal
   m_EditorClassIdentifier: 
   initialItems:
-  - {fileID: 11400000, guid: 4ca88258e8b79734592b7a2970cb91fe, type: 2}
-  - {fileID: 11400000, guid: e84301f84ec05784fbaab52177fb2417, type: 2}
   - {fileID: 11400000, guid: e8a13ed50988ee74caad5c15a6e54fd0, type: 2}
   - {fileID: 11400000, guid: 5176666a03c764f49890e004e836cf6a, type: 2}
+  - {fileID: 11400000, guid: 4ca88258e8b79734592b7a2970cb91fe, type: 2}
+  - {fileID: 11400000, guid: e84301f84ec05784fbaab52177fb2417, type: 2}
   respawnPool:
   - {fileID: 11400000, guid: e84301f84ec05784fbaab52177fb2417, type: 2}
   - {fileID: 11400000, guid: e8a13ed50988ee74caad5c15a6e54fd0, type: 2}
   missPenalty: -10
   requestScore: 150
+  missPenaltyScore: -50

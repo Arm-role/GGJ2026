@@ -13,12 +13,14 @@ MonoBehaviour:
   m_Name: Chaos
   m_EditorClassIdentifier: 
   initialItems:
+  - {fileID: 11400000, guid: 5176666a03c764f49890e004e836cf6a, type: 2}
   - {fileID: 11400000, guid: e8a13ed50988ee74caad5c15a6e54fd0, type: 2}
   - {fileID: 11400000, guid: 5176666a03c764f49890e004e836cf6a, type: 2}
-  - {fileID: 11400000, guid: 5176666a03c764f49890e004e836cf6a, type: 2}
-  - {fileID: 11400000, guid: 5176666a03c764f49890e004e836cf6a, type: 2}
-  - {fileID: 11400000, guid: 5176666a03c764f49890e004e836cf6a, type: 2}
+  - {fileID: 11400000, guid: e8a13ed50988ee74caad5c15a6e54fd0, type: 2}
   respawnPool:
+  - {fileID: 11400000, guid: 5176666a03c764f49890e004e836cf6a, type: 2}
+  - {fileID: 11400000, guid: e8a13ed50988ee74caad5c15a6e54fd0, type: 2}
   - {fileID: 11400000, guid: 5176666a03c764f49890e004e836cf6a, type: 2}
   missPenalty: -20
   requestScore: 300
+  missPenaltyScore: -50

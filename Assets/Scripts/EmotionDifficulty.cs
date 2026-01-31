@@ -16,11 +16,13 @@ public class EmotionDifficulty : ScriptableObject
   [Header("Rules")]
   [SerializeField] private int missPenalty = -10;
   [SerializeField] private int requestScore;
+  [SerializeField] private int missPenaltyScore;
 
   public EmotionItem[] InitialItems => initialItems;
   public EmotionItem[] RespawnPool => respawnPool;
   public int MissPenalty => missPenalty;
   public int RequestScore => requestScore;
+  public int MissPenaltyScore => missPenaltyScore;
 
   public EmotionItem GetRandomRespawn()
   {

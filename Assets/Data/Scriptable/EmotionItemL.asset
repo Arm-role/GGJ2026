@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: afa540465021a1340a7d3a3b5f4c840e, type: 3}
+  m_Script: {fileID: 11500000, guid: 89843bb83ee2c454bac08a25c05baf5b, type: 3}
   m_Name: EmotionItemL
   m_EditorClassIdentifier: 
   value: 10

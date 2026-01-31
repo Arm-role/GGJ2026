@@ -27,14 +27,13 @@ public class EmotionTurn
 
   /* ---------- SETUP ---------- */
 
-  public void Setup(IEnumerable<SliderItem> levelItems,
-    SliderItem acept)
+  public void Setup(IEnumerable<EmotionItem> levelItems)
   {
     emotionItems.Clear();
     
     var range = GetEmotionSpawnRange();
 
-    SetAceptDeal(acept);
+    //SetAceptDeal(acept);
 
     foreach (var item in levelItems)
       TrySpawn(item, range.min, range.max);
@@ -47,7 +46,7 @@ public class EmotionTurn
     edgePadding = Mathf.Clamp01(value);
   }
 
-  private void SetAceptDeal(SliderItem acept)
+  private void SetAceptDeal(EmotionItem acept)
   {
     decisionItems.Clear();
 
@@ -80,7 +79,7 @@ public class EmotionTurn
 
   public bool Resolve(
   float pointer,
-  SliderItem respawnItem,
+  EmotionItem respawnItem,
   out EmotionRuntimeItem hit,
   out int score,
   out bool endTurn)
@@ -124,7 +123,7 @@ public class EmotionTurn
   /* ---------- SPAWN LOGIC ---------- */
 
   private bool TrySpawn(
-  SliderItem item,
+  EmotionItem item,
   float min,
   float max)
   {
@@ -148,7 +147,7 @@ public class EmotionTurn
     return false;
   }
 
-  private void TrySpawnInEmptySpace(SliderItem item)
+  private void TrySpawnInEmptySpace(EmotionItem item)
   {
     Debug.Log(
       $"Respawn {item.name} width={item.Width} " +

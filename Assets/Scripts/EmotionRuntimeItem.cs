@@ -2,12 +2,12 @@
 
 public struct EmotionRuntimeItem
 {
-  public SliderItem Data;
+  public EmotionItem Data;
   public float Min;
   public float Max;
   public float Center;
 
-  public EmotionRuntimeItem(SliderItem data, float center)
+  public EmotionRuntimeItem(EmotionItem data, float center)
   {
     Data = data;
     float half = data.Width * 0.5f;

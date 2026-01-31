@@ -1,4 +1,4 @@
-﻿using System.Linq;
+﻿using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,11 +6,18 @@ using UnityEngine.UI;
 public class EmotionController : MonoBehaviour
 {
   [Header("Setup")]
+  [SerializeField] private EmotionType emotionTypeMock;
+
+  [Header("Setup")]
   [SerializeField] private GameSetting setting;
-  [SerializeField] private AceptItem aceptItem;
+  [SerializeField] private EmotionTypeDifficulty[] emotionTypeDifficulty;
 
   [SerializeField] private IndicatorUI indicator;
   [SerializeField] private EmotionSpawnerUI spawner;
+  [SerializeField] private EmotionScoreBar scoreBar;
+
+  [Header("Setup Param")]
+  [SerializeField] private string path;
 
   [Header("Data")]
   [SerializeField] private EmotionDifficulty easyDifficulty;
@@ -25,16 +32,33 @@ public class EmotionController : MonoBehaviour
   [SerializeField] private Button button4;
 
   [SerializeField] private TextMeshProUGUI textMesh;
-  private EmotionDifficulty _difficulty;
+
+  [SerializeField] private Image Image1;
+  [SerializeField] private Image Image2;
+  [SerializeField] private Image Image3;
+  [SerializeField] private Image Image4;
+
   private readonly EmotionTurn turn = new();
+  private IconProvider _iconProvider;
+
+  private EmotionTypeDifficulty _typeDifficulty;
+  private EmotionDifficulty _difficulty;
   private int score;
+
+  private EmotionType _inputEmotion;
+  private EmotionType _outputEmotion;
+
+  public Action<int, EmotionType> OnComplete;
+  public Action OnFail;
 
   void Start()
   {
-    button1.onClick.AddListener(() => Setup(easyDifficulty));
-    button2.onClick.AddListener(() => Setup(normalDifficulty));
-    button3.onClick.AddListener(() => Setup(hardDifficulty));
-    button4.onClick.AddListener(() => Setup(chaosDifficulty));
+    _iconProvider = new IconProvider(path);
+
+    button1.onClick.AddListener(ChoiseA);
+    button2.onClick.AddListener(ChoiseB);
+    button3.onClick.AddListener(ChoiseC);
+    button4.onClick.AddListener(ChoiseD);
 
     textMesh.text = $"Score : {score}";
 
@@ -42,10 +66,24 @@ public class EmotionController : MonoBehaviour
 
     indicator.OnPress += OnIndicatorPress;
 
-    Setup(easyDifficulty);
+
+    Setup(emotionTypeMock);
   }
 
-  private void Setup(EmotionDifficulty difficulty)
+  public void Setup(EmotionType emotionInput)
+  {
+    _inputEmotion = emotionInput;
+    _typeDifficulty = GettypeDifficulty(emotionInput);
+
+    Image1.sprite = _iconProvider.Get(_typeDifficulty.Easy.EmotionType);
+    Image2.sprite = _iconProvider.Get(_typeDifficulty.Normal.EmotionType);
+    Image3.sprite = _iconProvider.Get(_typeDifficulty.Hard.EmotionType);
+    Image4.sprite = _iconProvider.Get(_typeDifficulty.Chaos.EmotionType);
+
+    ChoiseA();
+  }
+
+  private void SelectDifficulty(EmotionDifficulty difficulty)
   {
     turn.Clear();
     spawner.ClearAll();
@@ -54,9 +92,35 @@ public class EmotionController : MonoBehaviour
 
     var range = indicator.GetBarRange01();
     turn.SetBarRange(range.min, range.max);
-    turn.Setup(_difficulty.InitialItems, aceptItem);
+    turn.Setup(_difficulty.InitialItems);
 
     spawner.SpawnAll(turn.EmotionItems);
+
+    score = 0;
+
+    scoreBar.Setup(_difficulty);
+    scoreBar.SetScore(score);
+
+  }
+  private void ChoiseA()
+  {
+    _outputEmotion = _typeDifficulty.Easy.EmotionType;
+    SelectDifficulty(_typeDifficulty.Easy.Difficulty);
+  }
+  private void ChoiseB()
+  {
+    _outputEmotion = _typeDifficulty.Normal.EmotionType;
+    SelectDifficulty(_typeDifficulty.Normal.Difficulty);
+  }
+  private void ChoiseC()
+  {
+    _outputEmotion = _typeDifficulty.Hard.EmotionType;
+    SelectDifficulty(_typeDifficulty.Hard.Difficulty);
+  }
+  private void ChoiseD()
+  {
+    _outputEmotion = _typeDifficulty.Chaos.EmotionType;
+    SelectDifficulty(_typeDifficulty.Chaos.Difficulty);
   }
 
   private void OnIndicatorPress(float t)
@@ -88,9 +152,26 @@ public class EmotionController : MonoBehaviour
     spawner.SpawnAll(turn.EmotionItems);
     textMesh.text = $"Score : {score}";
 
+    scoreBar.SetScore(score);
+
     if (score >= _difficulty.RequestScore)
     {
-      Debug.Log("Complete");
+      OnComplete?.Invoke(score, _outputEmotion);
     }
+    else if (score <= _difficulty.MissPenalty)
+    {
+      OnFail?.Invoke();
+
+    }
+  }
+
+  private EmotionTypeDifficulty GettypeDifficulty(EmotionType emotion)
+  {
+    foreach (var diff in emotionTypeDifficulty)
+    {
+      if (diff.Type == emotion) return diff;
+    }
+
+    return null;
   }
 }
