@@ -13,6 +13,8 @@ public class TextPowerUI : MonoBehaviour
   private bool isRunning;
   private bool isTextFinish;
 
+  private EmotionContext target;
+
   private void Start()
   {
     targetUI.SetActive(false);
@@ -21,19 +23,18 @@ public class TextPowerUI : MonoBehaviour
 
     button.onClick.AddListener(LeaveUI);
   }
-  
-  public void ActivaUI(int _, EmotionType from, EmotionType to)
+
+  public void ActivaUI(EmotionContext ctx)
   {
     GameStateManager.Set(GameState.TextPowerUI);
-    
+
     targetUI.SetActive(true);
 
     isRunning = true;
     isTextFinish = false;
+    target = ctx;
 
-    Debug.Log(from.ToString() + " : " +  to.ToString());
-    
-    var text = database.Get(from, to).Get();
+    var text = database.Get(ctx.From, ctx.To).Get();
     typewriterText.Play(text);
   }
 
@@ -41,7 +42,7 @@ public class TextPowerUI : MonoBehaviour
   {
     if (GameStateManager.Current != GameState.TextPowerUI)
       return;
-    
+
     if (!isRunning)
       return;
 
@@ -71,6 +72,7 @@ public class TextPowerUI : MonoBehaviour
 
     targetUI.SetActive(false);
     
+    target.Target.OnUnInteraction();
     GameStateManager.Set(GameState.Gameplay);
   }
 }

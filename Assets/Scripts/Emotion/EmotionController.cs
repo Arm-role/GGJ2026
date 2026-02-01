@@ -36,7 +36,7 @@ public class EmotionController : MonoBehaviour
   [SerializeField] private GameObject huggingObject;
 
   private readonly EmotionTurn turn = new();
-  private IconProvider _iconProvider;
+  private SpriteProvider spriteProvider;
 
   private EmotionGameSession session;
   private EmotionGameState state = EmotionGameState.Idle;
@@ -48,19 +48,20 @@ public class EmotionController : MonoBehaviour
   private EmotionType _inputEmotion;
   private EmotionType _outputEmotion;
 
-  public Action<int, EmotionType, EmotionType> OnComplete;
-  public Action OnFail;
+  public Action<EmotionContext> OnEmotionChanged;
+
+  private ITargetable _target;
 
   void Start()
   {
-    _iconProvider = new IconProvider(path);
+    spriteProvider = new SpriteProvider(path);
 
     button1.onClick.AddListener(ChoiseA);
     button2.onClick.AddListener(ChoiseB);
     button3.onClick.AddListener(ChoiseC);
     button4.onClick.AddListener(ChoiseD);
 
-    textMesh.text = $"Score : {score}";
+    textMesh.text = $"{score}";
 
     turn.SetEdgePadding(setting.EdgePadding);
 
@@ -69,20 +70,21 @@ public class EmotionController : MonoBehaviour
     huggingObject.SetActive(false);
   }
 
-  public void Setup(EmotionType emotionInput)
+  public void Setup(EmotionType emotionInput, ITargetable targetable)
   {
     GameStateManager.Set(GameState.HugglingUI);
-    
+
+    _target = targetable;
     _inputEmotion = emotionInput;
     _typeDifficulty = GettypeDifficulty(emotionInput);
 
-    Image1.sprite = _iconProvider.Get(_typeDifficulty.Easy.EmotionType);
-    Image2.sprite = _iconProvider.Get(_typeDifficulty.Normal.EmotionType);
-    Image3.sprite = _iconProvider.Get(_typeDifficulty.Hard.EmotionType);
-    Image4.sprite = _iconProvider.Get(_typeDifficulty.Chaos.EmotionType);
+    Image1.sprite = spriteProvider.Get(_typeDifficulty.Easy.EmotionType.ToString());
+    Image2.sprite = spriteProvider.Get(_typeDifficulty.Normal.EmotionType.ToString());
+    Image3.sprite = spriteProvider.Get(_typeDifficulty.Hard.EmotionType.ToString());
+    Image4.sprite = spriteProvider.Get(_typeDifficulty.Chaos.EmotionType.ToString());
 
     ChoiseA();
-    
+
     Debug.Log("Setup");
     huggingObject.SetActive(true);
   }
@@ -115,8 +117,8 @@ public class EmotionController : MonoBehaviour
 
   private void ChoiseA()
   {
-    if(indicator.IsRunning) return;
-    
+    if (indicator.IsRunning) return;
+
     _outputEmotion = _typeDifficulty.Easy.EmotionType;
     SelectDifficulty(_typeDifficulty.Easy.Difficulty);
     EventSystem.current.SetSelectedGameObject(null);
@@ -125,8 +127,8 @@ public class EmotionController : MonoBehaviour
 
   private void ChoiseB()
   {
-    if(indicator.IsRunning) return;
-    
+    if (indicator.IsRunning) return;
+
     _outputEmotion = _typeDifficulty.Normal.EmotionType;
     SelectDifficulty(_typeDifficulty.Normal.Difficulty);
     EventSystem.current.SetSelectedGameObject(null);
@@ -135,8 +137,8 @@ public class EmotionController : MonoBehaviour
 
   private void ChoiseC()
   {
-    if(indicator.IsRunning) return;
-    
+    if (indicator.IsRunning) return;
+
     _outputEmotion = _typeDifficulty.Hard.EmotionType;
     SelectDifficulty(_typeDifficulty.Hard.Difficulty);
     EventSystem.current.SetSelectedGameObject(null);
@@ -145,8 +147,8 @@ public class EmotionController : MonoBehaviour
 
   private void ChoiseD()
   {
-    if(indicator.IsRunning) return;
-    
+    if (indicator.IsRunning) return;
+
     _outputEmotion = _typeDifficulty.Chaos.EmotionType;
     SelectDifficulty(_typeDifficulty.Chaos.Difficulty);
     EventSystem.current.SetSelectedGameObject(null);
@@ -192,10 +194,12 @@ public class EmotionController : MonoBehaviour
     indicator.ResetIndicator();
     huggingObject.SetActive(false);
 
-    if (success)
-      OnComplete?.Invoke(session.Score, _inputEmotion, session.OutputEmotion);
-    else
-      OnFail?.Invoke();
+    OnEmotionChanged?.Invoke(new EmotionContext(
+      success ? EmotionTypeResutl.Success : EmotionTypeResutl.Failure,
+      session.Score,
+      _inputEmotion,
+      session.OutputEmotion,
+      _target));
   }
 
 

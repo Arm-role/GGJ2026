@@ -10,39 +10,35 @@ public class CutsceneController : MonoBehaviour
 
   private void Start()
   {
-    emotionController.OnComplete += PlayEmotionResult;
+    emotionController.OnEmotionChanged += PlayEmotionResult;
   }
 
   private void OnDestroy()
   {
-    emotionController.OnComplete -= PlayEmotionResult;
+    emotionController.OnEmotionChanged -= PlayEmotionResult;
   }
 
-  public void PlayEmotionResult(
-    int score,
-    EmotionType from,
-    EmotionType to
-  )
+  public void PlayEmotionResult(EmotionContext ctx)
   {
-    StartCoroutine(CutsceneRoutine(score, from, to));
+    StartCoroutine(CutsceneRoutine(ctx));
   }
 
-  private IEnumerator CutsceneRoutine(
-    int score,
-    EmotionType from,
-    EmotionType to
-  )
+  private IEnumerator CutsceneRoutine(EmotionContext ctx)
   {
     GameStateManager.Set(GameState.Cutscene);
     cameraController.SetState(CameraState.ZoomIn);
     cameraController.ZoomTo(3f);
-    
+
     Debug.Log("Cutscene Start");
     yield return new WaitForSeconds(cutsceneDuration);
 
-    Debug.Log("Cutscene End");
+    if (ctx.Result == EmotionTypeResutl.Success)
+      ctx.Target.SetEmotionType(ctx.To);
+
     cameraController.SetState(CameraState.Follow);
     cameraController.ResetZoom();
-    textPowerUI.ActivaUI(score, from, to);
+    
+    Debug.Log("Cutscene End");
+    textPowerUI.ActivaUI(ctx);
   }
 }

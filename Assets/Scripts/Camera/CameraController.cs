@@ -37,8 +37,6 @@ public class CameraController : MonoBehaviour
       );
     }
 
-    // รวม effect (เช่น shake)
-    Debug.Log(basePos);
     transform.position = basePos + shakeOffset;
   }
 

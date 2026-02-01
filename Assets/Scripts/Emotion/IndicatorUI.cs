@@ -61,7 +61,6 @@ public class IndicatorUI : MonoBehaviour
     }
 
     delay = 0.4f;
-    Debug.Log("Pointer : " + t);
     OnPress?.Invoke(t);
   }
 

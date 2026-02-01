@@ -2,7 +2,7 @@
 {
   None,
   Happy,
-  Anger,
+  Angry,
   Fear,
   Sadness,
   Confidence,

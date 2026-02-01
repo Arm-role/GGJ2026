@@ -5,5 +5,6 @@ public enum GameState
   HugglingUI,
   Cutscene,
   TextPowerUI,   // Dialogue / Typewriter
-  Pause
+  Pause,
+  GameOver
 }

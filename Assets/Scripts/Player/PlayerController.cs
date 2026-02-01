@@ -9,22 +9,12 @@ public class PlayerController : MonoBehaviour
 
   private Rigidbody2D rb;
   private Vector2 moveInput;
-  private ITargetable target = null;
-
+  private ITargetable target;
+  private ITargetable previousTarget;
   private void Start()
   {
     rb = GetComponent<Rigidbody2D>();
-
     rb.interpolation = RigidbodyInterpolation2D.Interpolate;
-
-    emotionController.OnComplete += OnComplete;
-    emotionController.OnFail += OnFail;
-  }
-
-  private void OnDestroy()
-  {
-    emotionController.OnComplete -= OnComplete;
-    emotionController.OnFail -= OnFail;
   }
 
   private void Update()
@@ -44,7 +34,8 @@ public class PlayerController : MonoBehaviour
 
     if (Input.GetKeyDown(KeyCode.E) && target != null)
     {
-      emotionController.Setup(target.GetEmotionType);
+      target.OnInteraction();
+      emotionController.Setup(target.GetEmotionType, target);
     }
   }
 
@@ -52,32 +43,33 @@ public class PlayerController : MonoBehaviour
   {
     rb.velocity = moveInput * speed;
 
-    var hits = Physics2D.OverlapCircleAll(
-      rb.position,
-      detectRadius
-    );
+    var hits = Physics2D.OverlapCircleAll(rb.position, detectRadius);
 
-    target = null;
+    ITargetable closestTarget = null;
+    float closestDistance = float.MaxValue;
+
     foreach (var hit in hits)
     {
       if (hit.TryGetComponent(out ITargetable t))
       {
-        target = t;
-        target.OnInteraction();
-        break;
+        float distance = Vector2.Distance(rb.position, hit.transform.position);
+
+        if (distance < closestDistance)
+        {
+          closestDistance = distance;
+          closestTarget = t;
+        }
       }
     }
-  }
 
-  private void OnComplete(int score, EmotionType from, EmotionType to)
-  {
-    if (target == null) return;
-    target.SetEmotionType(to);
-  }
+    if (previousTarget != closestTarget)
+    {
+      previousTarget?.OnUnfocus();
+      closestTarget?.OnFocus();
+      previousTarget = closestTarget;
+    }
 
-  private void OnFail()
-  {
-    Debug.Log("Target Emotion Damage");
+    target = closestTarget;
   }
 
   private void OnDrawGizmos()

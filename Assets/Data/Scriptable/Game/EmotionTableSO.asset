@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2c4438860fe44b1bb91cc06d4a48c99, type: 3}
+  m_Name: EmotionTableSO
+  m_EditorClassIdentifier: 
+  transitions:
+  - {fileID: 11400000, guid: c9fdad460e944164aa621bba8ab83de7, type: 2}
+  - {fileID: 11400000, guid: 77d5c49ae3a50db4b832c1493ce96708, type: 2}
+  - {fileID: 11400000, guid: 67e6ae7e1f8e3a04c8d0306fe61869fc, type: 2}
+  - {fileID: 11400000, guid: 860a535609cc7324da12585bb245d174, type: 2}
+  - {fileID: 11400000, guid: ae258252a40fa8941b76e88d11146391, type: 2}
+  - {fileID: 11400000, guid: 4bbdcb20643f3a44ab245f38db76d59b, type: 2}
+  - {fileID: 11400000, guid: 921e428e0266150479ea519edd539a28, type: 2}
+  - {fileID: 11400000, guid: ab9ab9ab287416844880e20fa3532ad8, type: 2}
+  - {fileID: 11400000, guid: bb15df5b82a43ee49ba44652d8840528, type: 2}
+  - {fileID: 11400000, guid: d9ed9ee373a7b8045918e85214fdfb35, type: 2}
+  - {fileID: 11400000, guid: 2337c5c9c79ed6a458269ba665142780, type: 2}
+  - {fileID: 11400000, guid: 67d4b0087881378488070ed330daf8cd, type: 2}
+  - {fileID: 11400000, guid: 0152e9ebf4a253648b23f9918a575390, type: 2}
+  - {fileID: 11400000, guid: be3803b79ab29dc4097bb77925f71516, type: 2}
+  - {fileID: 11400000, guid: 2830ad0180875be48a4d53c19dcc2026, type: 2}
+  - {fileID: 11400000, guid: 2485a89fe2beb4e4ea409d2bf0323dc5, type: 2}
+  - {fileID: 11400000, guid: 8d5603161f69aff489817b7c50de5bf7, type: 2}
+  - {fileID: 11400000, guid: b44c5c4ec8afa3b489f4bbd2e4345090, type: 2}
+  - {fileID: 11400000, guid: 39f45132ee771074d930261208517709, type: 2}
+  - {fileID: 11400000, guid: 722a6f2299151454f871e7bca9b47cca, type: 2}
