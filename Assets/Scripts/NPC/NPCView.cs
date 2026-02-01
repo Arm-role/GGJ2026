@@ -12,9 +12,6 @@ public class NPCView : MonoBehaviour
 
   public void ShowInteractIcon(bool show)
   {
-    if(show) npcRenderer.color = Color.white;
-    else npcRenderer.color = npcColor;
-    
     if (interactIcon != null)
       interactIcon.SetActive(show);
   }
