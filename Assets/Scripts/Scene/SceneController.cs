@@ -20,13 +20,6 @@ public class SceneController : MonoBehaviour
     }
   }
 
-  private void Update()
-  {
-    if (Input.GetKeyDown(KeyCode.W))
-    {
-      NextLevel();
-    }
-  }
   public void NextLevel()
   {
     StartCoroutine(LoadLevel());
@@ -36,7 +29,7 @@ public class SceneController : MonoBehaviour
   {
     transitionAnim.SetTrigger("End");
     yield return new WaitForSeconds(1f);
-    //SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex + 1);
+    SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex + 1);
     transitionAnim.SetTrigger("Start");
   }
 }

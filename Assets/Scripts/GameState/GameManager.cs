@@ -1,9 +1,10 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-  [Header("Timer")] [SerializeField] private TextMeshProUGUI timerText;
+  [Header("Timer")][SerializeField] private TextMeshProUGUI timerText;
   [SerializeField] private float startTime = 60f;
 
   [SerializeField] private EmotionController emotionController;
@@ -43,7 +44,7 @@ public class GameManager : MonoBehaviour
       if (currentTime <= 0f)
       {
         currentTime = 0f;
-        OnTimeUp();
+        StartCoroutine(OnTimeUp());
       }
 
       UpdateTimerUI();
@@ -58,14 +59,17 @@ public class GameManager : MonoBehaviour
     timerText.text = $"{minutes:00}:{seconds:00}";
   }
 
-  private void OnTimeUp()
+  private IEnumerator OnTimeUp()
   {
     isRunning = false;
 
     EndingType ending = EvaluateEnding();
-    endGameUI.Show(ending);
+    SceneController.instance.NextLevel();
+    yield return new WaitForSeconds(1f);
 
+    endGameUI.Show(ending);
     GameStateManager.Set(GameState.GameOver);
+
   }
 
   private void GetData(EmotionContext ctx)
